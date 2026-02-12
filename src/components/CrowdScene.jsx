@@ -3,12 +3,31 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
 
+/* ─── Performance detection ─── */
+function detectPerformanceMode() {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+  const isLowPower = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  return {
+    isMobile,
+    isLowPower: isMobile || isLowPower || prefersReducedMotion,
+    shouldReduceEffects: isMobile || prefersReducedMotion,
+    targetFPS: isMobile ? 30 : 60,
+  }
+}
+
 /* ─── Procedural instanced-mesh crowd (fallback) ─── */
-function createProceduralCrowd(scene) {
+function createProceduralCrowd(scene, isMobile = false) {
   const group = new THREE.Group()
 
-  const bodyGeo = new THREE.CapsuleGeometry(0.12, 0.55, 4, 12)
-  const headGeo = new THREE.SphereGeometry(0.1, 12, 8)
+  // Reduce geometry complexity on mobile
+  const bodyGeo = isMobile
+    ? new THREE.CapsuleGeometry(0.12, 0.55, 3, 8)
+    : new THREE.CapsuleGeometry(0.12, 0.55, 4, 12)
+  const headGeo = isMobile
+    ? new THREE.SphereGeometry(0.1, 8, 6)
+    : new THREE.SphereGeometry(0.1, 12, 8)
 
   const bodyMat = new THREE.MeshStandardMaterial({
     roughness: 0.7,
@@ -16,8 +35,9 @@ function createProceduralCrowd(scene) {
   })
   const headMat = bodyMat.clone()
 
-  const rows = 10
-  const cols = 18
+  // Reduce crowd size on mobile
+  const rows = isMobile ? 7 : 10
+  const cols = isMobile ? 12 : 18
   const count = rows * cols
   const bodyMesh = new THREE.InstancedMesh(bodyGeo, bodyMat, count)
   const headMesh = new THREE.InstancedMesh(headGeo, headMat, count)
@@ -99,8 +119,8 @@ function createCircleTexture() {
 }
 
 /* ─── Atmospheric particles ─── */
-function createParticles(scene) {
-  const count = 600
+function createParticles(scene, isMobile = false) {
+  const count = isMobile ? 150 : 600
   const positions = new Float32Array(count * 3)
   const sizes = new Float32Array(count)
 
@@ -140,10 +160,16 @@ export default function CrowdScene({ className, ...rest }) {
     const container = containerRef.current
     if (!container) return
 
+    /* Detect performance mode */
+    const perfMode = detectPerformanceMode()
+
     /* Scene */
     const scene = new THREE.Scene()
     scene.background = null
-    scene.fog = new THREE.FogExp2(0x060D18, 0.025)
+    // Disable fog on mobile (expensive shader calculation)
+    if (!perfMode.isMobile) {
+      scene.fog = new THREE.FogExp2(0x060D18, 0.025)
+    }
 
     /* Camera */
     const camera = new THREE.PerspectiveCamera(
@@ -184,8 +210,8 @@ export default function CrowdScene({ className, ...rest }) {
     fillLight.position.set(0, -2, 5)
     scene.add(fillLight)
 
-    /* Particles (always present) */
-    const particles = createParticles(scene)
+    /* Particles (reduced on mobile) */
+    const particles = createParticles(scene, perfMode.isMobile)
 
     /* State */
     const clock = new THREE.Clock()
@@ -196,6 +222,9 @@ export default function CrowdScene({ className, ...rest }) {
     let mouseX = 0
     let mouseY = 0
     let animFrameId = null
+    let isVisible = true
+    let frameCount = 0
+    const frameSkip = perfMode.isMobile ? 1 : 0 // Skip every other frame on mobile
 
     /* Try loading GLB model */
     const gltfLoader = new GLTFLoader()
@@ -233,7 +262,7 @@ export default function CrowdScene({ className, ...rest }) {
       undefined,
       () => {
         /* GLB failed — use procedural crowd */
-        proceduralData = createProceduralCrowd(scene)
+        proceduralData = createProceduralCrowd(scene, perfMode.isMobile)
         crowd = proceduralData.group
         sceneState.current.loaded = true
         container.dispatchEvent(new CustomEvent('scene-loaded'))
@@ -241,16 +270,26 @@ export default function CrowdScene({ className, ...rest }) {
       }
     )
 
-    /* Animation loop */
+    /* Animation loop with frame skipping and visibility pause */
     function animate() {
       animFrameId = requestAnimationFrame(animate)
+
+      // Pause when not visible
+      if (!isVisible) return
+
+      // Frame skipping on mobile
+      frameCount++
+      if (frameSkip > 0 && frameCount % (frameSkip + 1) !== 0) {
+        return
+      }
+
       const delta = clock.getDelta()
       const elapsed = clock.getElapsedTime()
 
       if (mixer) mixer.update(delta)
 
-      /* Mouse follow */
-      if (crowd) {
+      /* Mouse follow - skip on mobile or low power */
+      if (crowd && !perfMode.shouldReduceEffects) {
         targetPos.x = mouseX * 5
         crowd.position.x += (targetPos.x - crowd.position.x) * 0.05
 
@@ -267,9 +306,9 @@ export default function CrowdScene({ className, ...rest }) {
         }
       }
 
-      /* Animate procedural crowd sway */
-      if (proceduralData) {
-        const { bodyMesh, headMesh, instanceData, count, cols } = proceduralData
+      /* Animate procedural crowd sway - only if using procedural */
+      if (proceduralData && !perfMode.shouldReduceEffects) {
+        const { bodyMesh, headMesh, instanceData, count } = proceduralData
         const dummy = new THREE.Object3D()
 
         for (let i = 0; i < count; i++) {
@@ -292,24 +331,41 @@ export default function CrowdScene({ className, ...rest }) {
         headMesh.instanceMatrix.needsUpdate = true
       }
 
-      /* Animate particles */
-      const positions = particles.geometry.attributes.position.array
-      for (let i = 0; i < positions.length; i += 3) {
-        positions[i + 1] += Math.sin(elapsed * 0.3 + i) * 0.002
+      /* Animate particles - throttle updates on mobile */
+      if (!perfMode.isMobile || frameCount % 2 === 0) {
+        const positions = particles.geometry.attributes.position.array
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 1] += Math.sin(elapsed * 0.3 + i) * 0.002
+        }
+        particles.geometry.attributes.position.needsUpdate = true
       }
-      particles.geometry.attributes.position.needsUpdate = true
       particles.rotation.y = elapsed * 0.01
 
       renderer.render(scene, camera)
     }
+
+    /* IntersectionObserver - pause when off-screen */
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting
+        if (isVisible && !animFrameId) {
+          animate()
+        }
+      },
+      { threshold: 0 }
+    )
+    observer.observe(container)
+
     animate()
 
-    /* Mouse tracking */
+    /* Mouse tracking - only on desktop */
     function onMouseMove(e) {
       mouseX = (e.clientX / window.innerWidth) * 2 - 1
       mouseY = -(e.clientY / window.innerHeight) * 2 + 1
     }
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    if (!perfMode.isMobile) {
+      window.addEventListener('mousemove', onMouseMove, { passive: true })
+    }
 
     /* Resize */
     function onResize() {
@@ -325,7 +381,10 @@ export default function CrowdScene({ className, ...rest }) {
     /* Cleanup */
     return () => {
       cancelAnimationFrame(animFrameId)
-      window.removeEventListener('mousemove', onMouseMove)
+      observer.disconnect()
+      if (!perfMode.isMobile) {
+        window.removeEventListener('mousemove', onMouseMove)
+      }
       window.removeEventListener('resize', onResize)
       renderer.dispose()
       dracoLoader.dispose()

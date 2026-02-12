@@ -246,3 +246,39 @@ ul, ol {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* --- Performance Optimizations --- */
+/* Enable GPU acceleration for frequently animated elements */
+[data-crowd-canvas],
+[data-gradient-bg],
+[data-float],
+[data-guide-fill],
+[data-ring-draw] {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Disable will-change on mobile to save memory */
+  [data-crowd-canvas],
+  [data-gradient-bg],
+  [data-float],
+  [data-guide-fill],
+  [data-ring-draw] {
+    will-change: auto;
+  }
+
+  /* Simpler rendering on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

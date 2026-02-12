@@ -8,6 +8,11 @@ export default function CustomCursor() {
   const [hovering, setHovering] = useState(false)
 
   useEffect(() => {
+    // Skip entirely on mobile/touch devices
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+                     window.innerWidth < 768 ||
+                     'ontouchstart' in window
+    if (isMobile) return
     /* Track mouse target position */
     function onMouseMove(e) {
       target.current.x = e.clientX

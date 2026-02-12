@@ -9,6 +9,12 @@ export default function ScrollEffects() {
   const ref = useRef(null)
 
   useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    // Skip all scroll effects on mobile or reduced motion
+    if (isMobile || prefersReducedMotion) return
+
     const ctx = gsap.context(() => {
       /* ── Guide line fill — draws top→bottom with scroll ── */
       gsap.to('[data-guide-fill]', {

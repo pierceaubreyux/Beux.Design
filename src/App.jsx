@@ -28,12 +28,16 @@ export default function App() {
 
     document.body.style.overflow = ''
 
-    /* Lenis smooth scroll — init after loading completes */
+    /* Detect mobile for performance optimizations */
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
+
+    /* Lenis smooth scroll — reduced smoothness on mobile */
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: isMobile ? 0.8 : 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
-      smoothWheel: true,
+      smoothWheel: !isMobile, // Disable smooth wheel on mobile
+      touchMultiplier: isMobile ? 1.5 : 2,
     })
 
     lenis.on('scroll', ScrollTrigger.update)
@@ -42,7 +46,8 @@ export default function App() {
       lenis.raf(time * 1000)
     }
     gsap.ticker.add(rafCallback)
-    gsap.ticker.lagSmoothing(0)
+    // Enable lag smoothing to prevent frame drops from causing jumps
+    gsap.ticker.lagSmoothing(500, 33)
 
     /* Fade gradient bg through hero + about, canvas fades faster */
     ScrollTrigger.create({
