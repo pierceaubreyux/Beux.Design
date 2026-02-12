@@ -1,0 +1,183 @@
+.wrapper {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+/* ── Vertical Guide Line ── */
+.guideWrap {
+  position: absolute;
+  left: 48px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.guideTrack {
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  left: 1px;
+  background: rgba(74, 144, 217, 0.06);
+}
+
+.guideFill {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(74, 144, 217, 0.6) 0%,
+    rgba(74, 144, 217, 0.35) 40%,
+    rgba(208, 255, 113, 0.2) 80%,
+    rgba(74, 144, 217, 0.1) 100%
+  );
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.guideGlow {
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 10px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(74, 144, 217, 0.15) 0%,
+    rgba(74, 144, 217, 0.06) 50%,
+    transparent 100%
+  );
+  filter: blur(4px);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* ── Floating Rings — luminous, animated ── */
+.ring {
+  position: fixed;
+  border-radius: 50%;
+}
+
+.ring svg {
+  width: 100%;
+  height: 100%;
+  animation: ringSpin 60s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(74, 144, 217, 0.08));
+}
+
+/* Draw-out circles start fully hidden via dashoffset */
+.ring svg circle {
+  transition: filter 2s ease;
+}
+
+.ring1 {
+  width: 400px;
+  height: 400px;
+  top: 8%;
+  right: -4%;
+  opacity: 0.35;
+  animation: ringFloat1 12s ease-in-out infinite;
+}
+
+.ring1 svg {
+  animation-duration: 80s;
+}
+
+.ring2 {
+  width: 240px;
+  height: 240px;
+  top: 48%;
+  left: 3%;
+  opacity: 0.3;
+  animation: ringFloat2 10s ease-in-out infinite;
+}
+
+.ring2 svg {
+  animation-direction: reverse;
+  animation-duration: 50s;
+}
+
+.ring3 {
+  width: 550px;
+  height: 550px;
+  top: 28%;
+  right: 10%;
+  opacity: 0.25;
+  animation: ringFloat3 14s ease-in-out infinite;
+}
+
+.ring3 svg {
+  animation-duration: 100s;
+}
+
+@keyframes ringSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Gentle floating motion */
+@keyframes ringFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(12px, -18px); }
+  66% { transform: translate(-8px, 10px); }
+}
+
+@keyframes ringFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  40% { transform: translate(-10px, 14px); }
+  70% { transform: translate(8px, -6px); }
+}
+
+@keyframes ringFloat3 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, 10px); }
+  75% { transform: translate(-10px, -15px); }
+}
+
+/* ── Accent Dots ── */
+.dot {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--c-highlight);
+  opacity: 0.15;
+}
+
+.dot1 { top: 18%; right: 22%; }
+.dot2 { top: 38%; left: 14%; }
+.dot3 { top: 58%; right: 35%; }
+.dot4 { top: 72%; left: 20%; }
+.dot5 { top: 88%; right: 18%; }
+
+/* ── Cross Accents ── */
+.cross {
+  position: fixed;
+  color: rgba(74, 144, 217, 0.1);
+}
+
+.cross1 {
+  width: 16px;
+  height: 16px;
+  top: 28%;
+  right: 8%;
+}
+
+.cross2 {
+  width: 12px;
+  height: 12px;
+  top: 68%;
+  left: 8%;
+}
+
+/* ── Hide on mobile ── */
+@media (max-width: 768px) {
+  .wrapper {
+    display: none;
+  }
+}

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Human Curious Design - Portfolio</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+      background: white;
+    }
+
+    /* Sticky hero container */
+    .hero-sticky-container {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    #hero-section {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      background: #0a4d5c;
+      overflow: visible;
+      padding-bottom: 200px; /* Extra space so content can scroll */
+      --gradient-opacity: 1;
+    }
+
+    /* Make only the canvas sticky */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      opacity: 0.85;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #canvas-container canvas {
+      pointer-events: auto;
+    }
+
+    /* Base gradient layer with breathing effect */
+    #hero-section::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 0%, #14b8a6 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 80% 30%, #06b6d4 0%, transparent 50%),
+        radial-gradient(ellipse 70% 60% at 20% 40%, #0891b2 0%, transparent 50%),
+        radial-gradient(ellipse 120% 100% at 50% 100%, #134e4a 0%, transparent 60%),
+        linear-gradient(135deg, #0f766e 0%, #164e63 50%, #134e4a 100%);
+      opacity: var(--gradient-opacity, 1);
+      animation: breathe 8s ease-in-out infinite;
+      z-index: 1;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    @keyframes breathe {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.95;
+      }
+    }
+
+    /* Animated gradient orbs */
+    .gradient-orb-1 {
+      position: fixed;
+      width: 1000px;
+      height: 1000px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.6) 0%, transparent 60%);
+      filter: blur(120px);
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: float1 18s ease-in-out infinite;
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .gradient-orb-2 {
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.5) 0%, transparent 65%);
+      filter: blur(100px);
+      bottom: -10%;
+      right: 15%;
+      animation: float2 15s ease-in-out infinite;
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .gradient-orb-3 {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(8, 145, 178, 0.4) 0%, transparent 70%);
+      filter: blur(90px);
+      top: 30%;
+      left: 10%;
+      animation: float3 20s ease-in-out infinite;
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    @keyframes float1 {
+      0%, 100% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 0.6;
+      }
+      33% {
+        transform: translateX(-45%) translateY(-60px) scale(1.1);
+        opacity: 0.7;
+      }
+      66% {
+        transform: translateX(-55%) translateY(40px) scale(0.95);
+        opacity: 0.5;
+      }
+    }
+
+    @keyframes float2 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.5;
+      }
+      33% {
+        transform: translate(-70px, 40px) scale(1.12);
+        opacity: 0.6;
+      }
+      66% {
+        transform: translate(50px, -50px) scale(0.9);
+        opacity: 0.45;
+      }
+    }
+
+    @keyframes float3 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translate(-80px, 60px) scale(1.15);
+        opacity: 0.5;
+      }
+    }
+
+    /* Noise texture for depth */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.015;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Subtle vignette */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 77, 92, 0.3) 100%);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    #hero-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 0 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      color: white;
+    }
+
+    h1 {
+      font-size: clamp(3.5rem, 9vw, 7.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 60px;
+      letter-spacing: -0.02em;
+      filter: blur(20px);
+      opacity: 0.2;
+      transition: filter 1.2s ease, opacity 1.2s ease;
+    }
+
+    h1.revealed {
+      filter: blur(0px);
+      opacity: 1;
+    }
+
+    nav {
+      position: absolute;
+      top: 40px;
+      right: 60px;
+      z-index: 20;
+      display: flex;
+      gap: 40px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 400;
+      transition: opacity 0.3s;
+    }
+
+    nav a:hover {
+      opacity: 0.7;
+    }
+
+    /* Logo */
+    .logo {
+      position: absolute;
+      top: 40px;
+      left: 60px;
+      z-index: 20;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+
+    .logo-be {
+      font-weight: 400;
+    }
+
+    .logo-design {
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    /* (kept as in your file; duplicate #hero-content / h1 definitions removed previously can stay, but leaving them won't break) */
+    .title-prefix {
+      font-weight: 400;
+      font-size: clamp(3.5rem, 9vw, 7.5rem);
+      color: white;
+    }
+
+    .highlight-human,
+    .highlight-curious,
+    .highlight-design {
+      color: white;
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    /* Three column tagline section */
+    .tagline-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      width: 100%;
+      margin-bottom: 60px;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 300;
+      filter: blur(10px);
+      opacity: 0.2;
+      transform: translateY(20px);
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+    }
+
+    .tagline:nth-child(1) { transition-delay: 0.3s; }
+    .tagline:nth-child(2) { transition-delay: 0.4s; }
+    .tagline:nth-child(3) { transition-delay: 0.5s; }
+
+    .tagline.revealed {
+      filter: blur(0px);
+      opacity: 0.9;
+      transform: translateY(0);
+    }
+
+    .footer-tags {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: white;
+      filter: blur(10px);
+      opacity: 0.2;
+      transition: filter 1s ease, opacity 1s ease;
+      transition-delay: 0.6s;
+    }
+
+    .footer-tags.revealed {
+      filter: blur(0px);
+      opacity: 1;
+    }
+
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 1.2rem;
+      z-index: 25;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        top: 20px;
+        right: 20px;
+        gap: 20px;
+      }
+
+      .logo {
+        top: 20px;
+        left: 20px;
+      }
+
+      #hero-content {
+        padding: 0 20px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+      }
+
+      .tagline-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+
+    /* White content section */
+    .white-section {
+      position: relative;
+      min-height: 100vh;
+      background: white;
+      padding: 120px 60px;
+      z-index: 100; /* Above fixed hero gradient */
+    }
+
+    .white-section-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .white-section h2 {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 40px;
+      color: #0a4d5c;
+      filter: blur(15px);
+      opacity: 0.3;
+      transform: translateY(30px);
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+    }
+
+    .white-section h2.revealed {
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .white-section p {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: #555;
+      max-width: 800px;
+      filter: blur(10px);
+      opacity: 0.3;
+      transform: translateY(20px);
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+      transition-delay: 0.2s;
+    }
+
+    .white-section p.revealed {
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Gradient return section with expanding circle */
+    .gradient-return-section {
+      position: relative;
+      min-height: 150vh;
+      background: white;
+      z-index: 100; /* Above everything else */
+    }
+
+    .expanding-gradient-bg {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(50%); /* Start half-visible at bottom */
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #0a4d5c;
+      z-index: 1;
+      transition: width 0.05s linear, height 0.05s linear;
+    }
+
+    .expanding-gradient-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #14b8a6 0%, #06b6d4 30%, #0891b2 50%, #134e4a 80%, #0a4d5c 100%);
+      opacity: 1;
+    }
+
+    .expanding-gradient-bg::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gradient-return-content {
+      position: relative;
+      z-index: 2;
+      padding: 120px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      color: white;
+    }
+
+    .gradient-return-content h2 {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 40px;
+      filter: blur(15px);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+    }
+
+    .gradient-return-content.visible h2 {
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gradient-return-content p {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      max-width: 800px;
+      filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+      transition-delay: 0.2s;
+    }
+
+    .gradient-return-content.visible p {
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---------------- Inertia scroll scaffold (transform-based, keeps window.scrollY) ---------------- */
+    html, body { height: 100%; }
+
+    body {
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+    }
+
+    #smooth-wrapper {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      will-change: transform;
+    }
+
+    #smooth-content {
+      position: relative;
+      width: 100%;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #smooth-wrapper {
+        position: static;
+        transform: none !important;
+      }
+      #smooth-content {
+        transform: none !important;
+      }
+      body { height: auto !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Inertia scroll wrapper -->
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+
+      <div class="hero-sticky-container">
+        <section id="hero-section">
+          <!-- Gradient orbs -->
+          <div class="gradient-orb-1"></div>
+          <div class="gradient-orb-2"></div>
+          <div class="gradient-orb-3"></div>
+          <div class="noise-overlay"></div>
+          <div class="vignette"></div>
+
+          <!-- Logo -->
+          <div class="logo">
+            <span class="logo-be">Be.</span><span class="logo-design">Design</span>
+          </div>
+
+          <!-- Navigation -->
+          <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#work">Our Work</a>
+            <a href="#contact">Contact</a>
+          </nav>
+
+          <div id="canvas-container"></div>
+
+          <div id="loading">
+            <div class="spinner"></div>
+            <p>Loading experience...</p>
+          </div>
+
+          <div id="hero-content">
+            <h1>
+              <span class="title-prefix">Be.</span><span class="highlight-human">inspired</span>
+              <span class="title-prefix">Be.</span><span class="highlight-curious">immersed</span>
+              <span class="title-prefix">Be.</span><span class="highlight-design">intentional</span>
+            </h1>
+
+            <div class="tagline-grid">
+              <p class="tagline">
+                Great design guides users naturally, shaping behaviour, driving outcomes, creating impact.
+              </p>
+              <p class="tagline">
+                Great design guides users naturally, shaping behaviour, driving outcomes, creating impact.
+              </p>
+              <p class="tagline">
+                Great design guides users naturally, shaping behaviour, driving outcomes, creating impact.
+              </p>
+            </div>
+
+            <div class="footer-tags">
+              HUMAN COMPUTER INTERACTION | ACCESSIBLE DESIGN | STRATEGIC VISUALS | HUMAN COMPLEXITY
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- White content section -->
+      <section class="white-section">
+        <div class="white-section-content">
+          <h2>Our Approach</h2>
+          <p>
+            We believe design is more than aesthetics—it's about understanding human behavior, anticipating needs, and
+            creating experiences that feel intuitive and meaningful. Every project begins with empathy and ends with impact.
+          </p>
+          <br><br>
+          <p>
+            Through careful research, thoughtful iteration, and close collaboration, we craft digital experiences that not
+            only meet business goals but also resonate deeply with the people who use them.
+          </p>
+        </div>
+      </section>
+
+      <!-- Gradient return section -->
+      <section class="gradient-return-section">
+        <div class="expanding-gradient-bg"></div>
+        <div class="gradient-return-content">
+          <h2>Ready to create something meaningful?</h2>
+          <p>
+            Let's explore how thoughtful design can transform your product and connect with your audience in ways that matter.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+    // -------- Inertia Scroll (safe, transform-based, keeps window.scrollY accurate) --------
+    const smoothWrapper = document.getElementById('smooth-wrapper');
+    const smoothContent = document.getElementById('smooth-content');
+
+    let currentY = 0;
+    let targetY = 0;
+    let maxScroll = 0;
+
+    // Tweak these
+    const ease = 0.085;   // smaller = floatier, bigger = snappier
+    const minDelta = 0.1; // stop threshold
+
+    function setBodyHeight() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.style.height = 'auto';
+        if (smoothWrapper) smoothWrapper.style.position = 'static';
+        return;
+      }
+
+      const contentHeight = smoothContent.getBoundingClientRect().height;
+      document.body.style.height = `${contentHeight}px`;
+      maxScroll = Math.max(0, contentHeight - window.innerHeight);
+    }
+
+    function smoothTick() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      targetY = Math.min(window.scrollY, maxScroll);
+      currentY += (targetY - currentY) * ease;
+
+      if (Math.abs(targetY - currentY) < minDelta) {
+        currentY = targetY;
+      }
+
+      smoothContent.style.transform = `translate3d(0, ${-currentY}px, 0)`;
+      requestAnimationFrame(smoothTick);
+    }
+
+    function refreshSmoothScroll() {
+      setBodyHeight();
+    }
+
+    window.addEventListener('resize', setBodyHeight, { passive: true });
+    window.addEventListener('load', () => {
+      setBodyHeight();
+      requestAnimationFrame(smoothTick);
+    });
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = null;
+
+    // Camera - frontal, centered view
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1.5, 12);
+    camera.lookAt(0, 1.5, 0);
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 7.5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    const rimLight = new THREE.DirectionalLight(0x7a9fc4, 0.4);
+    rimLight.position.set(-5, 3, -5);
+    scene.add(rimLight);
+
+    // Load the crowd model
+    const loader = new GLTFLoader();
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+
+    let mixer;
+    let crowd;
+
+    loader.load(
+      'final-crows-test.glb',
+      (gltf) => {
+        crowd = gltf.scene;
+
+        crowd.scale.set(5, 5, 5);
+
+        const box = new THREE.Box3().setFromObject(crowd);
+        const center = box.getCenter(new THREE.Vector3());
+        crowd.position.sub(center);
+        crowd.position.y = 0;
+
+        scene.add(crowd);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(crowd);
+          gltf.animations.forEach((clip) => {
+            const action = mixer.clipAction(clip);
+            action.play();
+          });
+        }
+
+        document.getElementById('loading').style.display = 'none';
+
+        // ✅ in case layout shifts, keep scroll height correct
+        refreshSmoothScroll();
+      },
+      (progress) => {
+        const percent = Math.round((progress.loaded / progress.total) * 100);
+        console.log(`Loading: ${percent}%`);
+      },
+      (error) => {
+        console.error('Error loading model:', error);
+        document.getElementById('loading').innerHTML = '<p>Error loading 3D model</p>';
+      }
+    );
+
+    // Animation loop
+    const clock = new THREE.Clock();
+    let targetPosition = new THREE.Vector3(0, 0, 0);
+    let mouseX = 0;
+    let mouseY = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+
+      if (mixer) mixer.update(delta);
+
+      if (crowd) {
+        crowd.position.x += (targetPosition.x - crowd.position.x) * 0.05;
+
+        const targetTiltX = -mouseY * 0.25;
+        crowd.rotation.x += (targetTiltX - crowd.rotation.x) * 0.05;
+
+        const dx = targetPosition.x - crowd.position.x;
+
+        if (Math.abs(dx) > 0.01) {
+          const targetRotation = Math.atan2(dx, 1) + Math.PI;
+
+          let rotDiff = targetRotation - crowd.rotation.y;
+          while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
+          while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
+
+          crowd.rotation.y += rotDiff * 0.1;
+        }
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // keep inertia height correct
+      refreshSmoothScroll();
+    });
+
+    // Mouse tracking - only horizontal movement
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      targetPosition.x = mouseX * 5;
+    });
+
+    // Wait for DOM to be fully loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      // Expanding gradient circle on scroll
+      const expandingGradient = document.querySelector('.expanding-gradient-bg');
+      const gradientReturnSection = document.querySelector('.gradient-return-section');
+      const gradientReturnContent = document.querySelector('.gradient-return-content');
+      const whiteSection = document.querySelector('.white-section');
+
+      // Get all revealable elements
+      const heroTitle = document.querySelector('h1');
+      const taglines = document.querySelectorAll('.tagline');
+      const footerTags = document.querySelector('.footer-tags');
+      const whiteSectionH2 = document.querySelector('.white-section h2');
+      const whiteSectionPs = document.querySelectorAll('.white-section p');
+
+      function handleScrollEffects() {
+        const scrollY = window.scrollY;
+        const viewportHeight = window.innerHeight;
+
+        // Get hero section and gradient elements
+        const heroSection = document.getElementById('hero-section');
+        const orbs = [
+          document.querySelector('.gradient-orb-1'),
+          document.querySelector('.gradient-orb-2'),
+          document.querySelector('.gradient-orb-3')
+        ];
+        const noise = document.querySelector('.noise-overlay');
+        const vignette = document.querySelector('.vignette');
+        const canvasContainer = document.getElementById('canvas-container');
+
+        // Hide hero gradient completely when we reach the gradient return section
+        if (gradientReturnSection) {
+          const gradientSectionTop = gradientReturnSection.offsetTop;
+          const hideThreshold = gradientSectionTop - viewportHeight * 0.5;
+
+          if (scrollY > hideThreshold) {
+            heroSection.style.setProperty('--gradient-opacity', '0');
+            orbs.forEach(orb => { if (orb) orb.style.opacity = '0'; });
+            if (noise) noise.style.opacity = '0';
+            if (vignette) vignette.style.opacity = '0';
+            if (canvasContainer) canvasContainer.style.opacity = '0';
+          } else {
+            heroSection.style.setProperty('--gradient-opacity', '1');
+            orbs.forEach(orb => { if (orb) orb.style.opacity = ''; });
+            if (noise) noise.style.opacity = '';
+            if (vignette) vignette.style.opacity = '';
+            if (canvasContainer) canvasContainer.style.opacity = '0.85';
+          }
+        }
+
+        // Reveal hero elements on load/scroll
+        if (scrollY < viewportHeight * 1.5) {
+          if (heroTitle) heroTitle.classList.add('revealed');
+          if (taglines) taglines.forEach(tag => tag.classList.add('revealed'));
+          if (footerTags) footerTags.classList.add('revealed');
+        }
+
+        // Handle white section reveals
+        if (whiteSection) {
+          const whiteSectionTop = whiteSection.offsetTop;
+          const scrollPosition = scrollY + viewportHeight * 0.6;
+
+          if (scrollPosition > whiteSectionTop) {
+            if (whiteSectionH2) whiteSectionH2.classList.add('revealed');
+            if (whiteSectionPs) whiteSectionPs.forEach(p => p.classList.add('revealed'));
+          }
+        }
+
+        // Handle gradient circle expansion
+        if (gradientReturnSection && expandingGradient) {
+          const gradientSectionTop = gradientReturnSection.offsetTop;
+          const gradientSectionHeight = gradientReturnSection.offsetHeight;
+          const viewportScroll = scrollY + viewportHeight;
+
+          if (viewportScroll > gradientSectionTop) {
+            const progress = Math.min((viewportScroll - gradientSectionTop) / gradientSectionHeight, 1);
+
+            const maxSize = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) * 2.5;
+            const size = 100 + (progress * maxSize);
+
+            expandingGradient.style.width = `${size}px`;
+            expandingGradient.style.height = `${size}px`;
+
+            if (progress > 0.3) {
+              if (gradientReturnContent) gradientReturnContent.classList.add('visible');
+            }
+          }
+        }
+      }
+
+      window.addEventListener('scroll', handleScrollEffects, { passive: true });
+
+      handleScrollEffects();
+
+      // after initial layout, ensure body height correct
+      refreshSmoothScroll();
+    });
+  </script>
+</body>
+</html>

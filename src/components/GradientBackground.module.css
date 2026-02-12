@@ -1,0 +1,174 @@
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Base gradient — deep ocean floor */
+.gradient {
+  position: absolute;
+  inset: -15%;
+  width: 130%;
+  height: 130%;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 0%, var(--c-grad-1) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 80% 30%, var(--c-grad-2) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 20% 40%, var(--c-grad-3) 0%, transparent 50%),
+    radial-gradient(ellipse 120% 100% at 50% 100%, var(--c-grad-4) 0%, transparent 60%),
+    radial-gradient(ellipse 150% 120% at 30% 80%, var(--c-grad-deep) 0%, transparent 70%),
+    linear-gradient(180deg, var(--c-bg-alt) 0%, var(--c-grad-deep) 40%, var(--c-bg) 100%);
+  animation: oceanBreathe 20s ease-in-out infinite;
+}
+
+/* Primary — deep overhead light filtering down */
+.orb1 {
+  position: absolute;
+  width: 1200px;
+  height: 1200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 144, 217, 0.2) 0%, rgba(30, 80, 140, 0.08) 40%, transparent 65%);
+  filter: blur(140px);
+  top: -35%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: caustic1 28s ease-in-out infinite;
+}
+
+/* Deep current — slow lateral sweep */
+.orb2 {
+  position: absolute;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(46, 92, 138, 0.25) 0%, rgba(20, 50, 90, 0.1) 45%, transparent 70%);
+  filter: blur(120px);
+  bottom: -15%;
+  right: 10%;
+  animation: current1 35s ease-in-out infinite;
+}
+
+/* Mid-depth shimmer */
+.orb3 {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 58, 95, 0.3) 0%, transparent 65%);
+  filter: blur(100px);
+  top: 25%;
+  left: 5%;
+  animation: current2 32s ease-in-out infinite;
+}
+
+/* Faint bioluminescent accent */
+.orbAccent {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(208, 255, 113, 0.03) 0%, rgba(120, 200, 180, 0.02) 30%, transparent 60%);
+  filter: blur(110px);
+  top: 10%;
+  right: 15%;
+  animation: bioluminescence 24s ease-in-out infinite;
+}
+
+/* Abyssal depth */
+.orbDeep {
+  position: absolute;
+  width: 1400px;
+  height: 1400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(7, 20, 40, 0.7) 0%, transparent 55%);
+  filter: blur(160px);
+  bottom: -25%;
+  left: 15%;
+  animation: abyssal 40s ease-in-out infinite;
+}
+
+/* Noise texture */
+.noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  mix-blend-mode: overlay;
+}
+
+/* Vignette — deeper at edges like looking up from below */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 30%, transparent 30%, rgba(4, 8, 16, 0.6) 100%);
+}
+
+/* ═══════════════════════════════════════
+   Keyframes — deep ocean, slow and heavy
+   ═══════════════════════════════════════ */
+
+/* Base breathe — whole background slowly heaves like a tide */
+@keyframes oceanBreathe {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  15%  { transform: translate(-1.5%, 0.8%) scale(1.04); opacity: 0.94; }
+  30%  { transform: translate(0.5%, 1.5%) scale(1.08); opacity: 0.88; }
+  50%  { transform: translate(1%, -0.5%) scale(1.12); opacity: 0.82; }
+  65%  { transform: translate(-0.8%, -1%) scale(1.06); opacity: 0.9; }
+  80%  { transform: translate(0.3%, 0.5%) scale(1.02); opacity: 0.96; }
+  100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+
+/* Overhead light — caustic ripple effect, slow and hypnotic */
+@keyframes caustic1 {
+  0%   { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.6; }
+  15%  { transform: translateX(-42%) translateY(-60px) scale(1.2); opacity: 0.8; }
+  30%  { transform: translateX(-55%) translateY(-20px) scale(1.35); opacity: 0.5; }
+  45%  { transform: translateX(-48%) translateY(50px) scale(1.1); opacity: 0.75; }
+  60%  { transform: translateX(-53%) translateY(20px) scale(0.9); opacity: 0.65; }
+  75%  { transform: translateX(-45%) translateY(-40px) scale(1.25); opacity: 0.55; }
+  90%  { transform: translateX(-52%) translateY(10px) scale(1.05); opacity: 0.7; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.6; }
+}
+
+/* Deep ocean current — slow lateral drift */
+@keyframes current1 {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  20%  { transform: translate(-150px, 40px) scale(1.15); opacity: 0.65; }
+  40%  { transform: translate(-80px, -80px) scale(1.3); opacity: 0.4; }
+  55%  { transform: translate(60px, 30px) scale(1.1); opacity: 0.6; }
+  70%  { transform: translate(120px, -40px) scale(0.85); opacity: 0.55; }
+  85%  { transform: translate(40px, 60px) scale(1.2); opacity: 0.45; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+}
+
+/* Counter-current — opposite drift */
+@keyframes current2 {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.45; }
+  18%  { transform: translate(100px, -50px) scale(1.2); opacity: 0.6; }
+  35%  { transform: translate(-50px, 80px) scale(1.35); opacity: 0.35; }
+  52%  { transform: translate(80px, 60px) scale(0.9); opacity: 0.55; }
+  70%  { transform: translate(-80px, -40px) scale(1.15); opacity: 0.5; }
+  85%  { transform: translate(30px, -70px) scale(1.25); opacity: 0.4; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+}
+
+/* Bioluminescence — gentle pulse like deep-sea life */
+@keyframes bioluminescence {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  20%  { transform: translate(-60px, 40px) scale(1.5); opacity: 0.7; }
+  35%  { transform: translate(20px, -30px) scale(1.1); opacity: 0.35; }
+  50%  { transform: translate(-40px, -60px) scale(1.6); opacity: 0.8; }
+  65%  { transform: translate(50px, 20px) scale(0.9); opacity: 0.25; }
+  80%  { transform: translate(-20px, 50px) scale(1.3); opacity: 0.6; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+}
+
+/* Abyssal — the deepest, slowest pulse */
+@keyframes abyssal {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  25%  { transform: translate(60px, -30px) scale(1.08); opacity: 0.85; }
+  50%  { transform: translate(-40px, 20px) scale(1.15); opacity: 0.6; }
+  75%  { transform: translate(30px, 40px) scale(1.05); opacity: 0.8; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+}
