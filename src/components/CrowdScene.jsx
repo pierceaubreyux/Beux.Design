@@ -171,15 +171,21 @@ export default function CrowdScene({ className, ...rest }) {
       scene.fog = new THREE.FogExp2(0x060D18, 0.025)
     }
 
-    /* Camera */
+    /* Camera - adjusted for mobile */
     const camera = new THREE.PerspectiveCamera(
-      68,
+      perfMode.isMobile ? 75 : 68,
       container.clientWidth / container.clientHeight,
       0.1,
       1000
     )
-    camera.position.set(0, 4, 8)
-    camera.lookAt(0, 4, 0)
+    // Mobile: pull back and adjust height for better framing
+    if (perfMode.isMobile) {
+      camera.position.set(0, 3, 12)
+      camera.lookAt(0, 3, 0)
+    } else {
+      camera.position.set(0, 4, 8)
+      camera.lookAt(0, 4, 0)
+    }
 
     /* Renderer */
     const renderer = new THREE.WebGLRenderer({
@@ -245,6 +251,10 @@ export default function CrowdScene({ className, ...rest }) {
         const center = box.getCenter(new THREE.Vector3())
         crowd.position.sub(center)
 
+        /* Mobile: rotate to face camera better */
+        if (perfMode.isMobile) {
+          crowd.rotation.y = Math.PI // Face forward on mobile
+        }
 
         scene.add(crowd)
 

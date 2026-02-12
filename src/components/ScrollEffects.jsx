@@ -12,11 +12,12 @@ export default function ScrollEffects() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    // Skip all scroll effects on mobile or reduced motion
-    if (isMobile || prefersReducedMotion) return
+    // Skip ALL effects on mobile (performance)
+    if (isMobile) return
 
     const ctx = gsap.context(() => {
       /* ── Guide line fill — draws top→bottom with scroll ── */
+      // Simple directional animation - safe for reduced motion
       gsap.to('[data-guide-fill]', {
         scaleY: 1,
         ease: 'none',
@@ -27,6 +28,9 @@ export default function ScrollEffects() {
           scrub: 0.8,
         },
       })
+
+      // Skip heavy parallax effects if user prefers reduced motion
+      if (prefersReducedMotion) return
 
       /* ── Floating rings — parallax + scale ── */
       gsap.utils.toArray('[data-float]').forEach((el) => {
