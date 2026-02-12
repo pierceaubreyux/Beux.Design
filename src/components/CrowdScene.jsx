@@ -189,15 +189,20 @@ export default function CrowdScene({ className, ...rest }) {
 
     /* Renderer */
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !perfMode.isMobile, // Disable AA on mobile (expensive)
       alpha: true,
       powerPreference: 'high-performance',
     })
     renderer.setSize(container.clientWidth, container.clientHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    // Aggressive pixel ratio reduction on mobile
+    const pixelRatio = perfMode.isMobile ? 0.6 : Math.min(window.devicePixelRatio, 2)
+    renderer.setPixelRatio(pixelRatio)
     renderer.shadowMap.enabled = false
-    renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.2
+    // Disable tone mapping on mobile for performance
+    if (!perfMode.isMobile) {
+      renderer.toneMapping = THREE.ACESFilmicToneMapping
+      renderer.toneMappingExposure = 1.2
+    }
     container.appendChild(renderer.domElement)
 
     /* Lighting */
@@ -231,6 +236,10 @@ export default function CrowdScene({ className, ...rest }) {
     let isVisible = true
     let frameCount = 0
     const frameSkip = perfMode.isMobile ? 1 : 0 // Skip every other frame on mobile
+
+    // Throttle frame rate to 30fps max to reduce CPU/GPU load
+    const targetFrameTime = 1000 / 30 // 30fps
+    let lastFrameTime = 0
 
     /* Try loading GLB model */
     const gltfLoader = new GLTFLoader()
@@ -281,11 +290,17 @@ export default function CrowdScene({ className, ...rest }) {
     )
 
     /* Animation loop with frame skipping and visibility pause */
-    function animate() {
+    function animate(currentTime) {
       animFrameId = requestAnimationFrame(animate)
 
       // Pause when not visible
       if (!isVisible) return
+
+      // Throttle to 30fps
+      if (currentTime - lastFrameTime < targetFrameTime) {
+        return
+      }
+      lastFrameTime = currentTime
 
       // Frame skipping on mobile
       frameCount++
@@ -384,7 +399,8 @@ export default function CrowdScene({ className, ...rest }) {
       camera.aspect = w / h
       camera.updateProjectionMatrix()
       renderer.setSize(w, h)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      const pixelRatio = perfMode.isMobile ? 0.6 : Math.min(window.devicePixelRatio, 2)
+      renderer.setPixelRatio(pixelRatio)
     }
     window.addEventListener('resize', onResize, { passive: true })
 

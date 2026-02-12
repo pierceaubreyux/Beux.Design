@@ -252,10 +252,15 @@ ul, ol {
 [data-crowd-canvas],
 [data-gradient-bg],
 [data-float],
-[data-guide-fill],
 [data-ring-draw] {
   will-change: transform, opacity;
   transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Guide fill needs special handling - don't override its scaleY transform */
+[data-guide-fill] {
+  will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
@@ -274,6 +279,11 @@ body {
   [data-float],
   [data-guide-fill],
   [data-ring-draw] {
+    will-change: auto;
+  }
+
+  /* Keep guide fill performant */
+  [data-guide-fill] {
     will-change: auto;
   }
 

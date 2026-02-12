@@ -68,6 +68,7 @@
   height: 100%;
   animation: ringSpin 60s linear infinite;
   filter: drop-shadow(0 0 8px rgba(74, 144, 217, 0.08));
+  will-change: auto; /* Don't force GPU layer */
 }
 
 /* Draw-out circles start fully hidden via dashoffset */
@@ -80,7 +81,7 @@
   height: 400px;
   top: 8%;
   right: -4%;
-  opacity: 0.35;
+  opacity: 0.6;
   animation: ringFloat1 12s ease-in-out infinite;
 }
 
@@ -93,7 +94,7 @@
   height: 240px;
   top: 48%;
   left: 3%;
-  opacity: 0.3;
+  opacity: 0.55;
   animation: ringFloat2 10s ease-in-out infinite;
 }
 
@@ -107,7 +108,7 @@
   height: 550px;
   top: 28%;
   right: 10%;
-  opacity: 0.25;
+  opacity: 0.5;
   animation: ringFloat3 14s ease-in-out infinite;
 }
 
@@ -175,9 +176,22 @@
   left: 8%;
 }
 
-/* ── Hide on mobile ── */
+/* ── Simplify on mobile — keep guide line, hide heavy elements ── */
 @media (max-width: 768px) {
-  .wrapper {
+  /* Hide floating rings, dots, crosses on mobile for performance */
+  .ring,
+  .dot,
+  .cross {
+    display: none;
+  }
+
+  /* Keep the guide line visible but simpler */
+  .guideWrap {
+    left: 20px; /* Closer to edge on mobile */
+  }
+
+  /* Disable blur on mobile (expensive) */
+  .guideGlow {
     display: none;
   }
 }

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import styles from './Navigation.module.css'
 
 const NAV_LINKS = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#capabilities' },
-  { label: 'Work', href: '#work' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: '/', type: 'route' },
+  { label: 'About', href: '/about', type: 'route' },
+  { label: 'Services', href: '#capabilities', type: 'anchor' },
+  { label: 'Work', href: '#work', type: 'anchor' },
+  { label: 'Contact', href: '#contact', type: 'anchor' },
 ]
 
 export default function Navigation() {
@@ -16,6 +17,8 @@ export default function Navigation() {
   const navRef = useRef(null)
   const mobileNavRef = useRef(null)
   const tlRef = useRef(null)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     function onScroll() {
@@ -95,17 +98,32 @@ export default function Navigation() {
     }
   }, [mobileOpen])
 
-  const handleLinkClick = useCallback((e, href) => {
+  const handleLinkClick = useCallback((e, href, type) => {
     e.preventDefault()
     setMobileOpen(false)
-    /* Small delay so the menu close animation starts before scroll */
-    setTimeout(() => {
-      const target = document.querySelector(href)
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' })
+
+    if (type === 'route') {
+      navigate(href)
+    } else if (type === 'anchor') {
+      // If not on home page, navigate to home first
+      if (location.pathname !== '/') {
+        navigate('/')
+        setTimeout(() => {
+          const target = document.querySelector(href)
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 100)
+      } else {
+        setTimeout(() => {
+          const target = document.querySelector(href)
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 300)
       }
-    }, 300)
-  }, [])
+    }
+  }, [navigate, location])
 
   return (
     <>
@@ -114,10 +132,10 @@ export default function Navigation() {
         className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}
       >
         <div className={styles.inner}>
-          <a href="#home" className={styles.logo} onClick={(e) => handleLinkClick(e, '#home')}>
+          <Link to="/" className={styles.logo}>
             <span className={styles.logoBeux}>Beux<span className={styles.dot}>.</span></span>
             <span className={styles.logoDesign}>Design</span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <nav className={styles.nav}>
@@ -126,7 +144,7 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={styles.navLink}
-                onClick={(e) => handleLinkClick(e, link.href)}
+                onClick={(e) => handleLinkClick(e, link.href, link.type)}
               >
                 {link.label}
               </a>
@@ -157,7 +175,7 @@ export default function Navigation() {
                   href={link.href}
                   className={styles.mobileLink}
                   data-mobile-link
-                  onClick={(e) => handleLinkClick(e, link.href)}
+                  onClick={(e) => handleLinkClick(e, link.href, link.type)}
                 >
                   <span className={styles.mobileLinkNum}>
                     {String(i + 1).padStart(2, '0')}

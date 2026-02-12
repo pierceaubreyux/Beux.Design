@@ -12,12 +12,9 @@ export default function ScrollEffects() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    // Skip ALL effects on mobile (performance)
-    if (isMobile) return
-
     const ctx = gsap.context(() => {
       /* ── Guide line fill — draws top→bottom with scroll ── */
-      // Simple directional animation - safe for reduced motion
+      // Keep this on all devices - it's simple and performant
       gsap.to('[data-guide-fill]', {
         scaleY: 1,
         ease: 'none',
@@ -25,12 +22,12 @@ export default function ScrollEffects() {
           trigger: document.body,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.8,
+          scrub: isMobile ? 0.3 : 0.8, // Lighter scrub on mobile for performance
         },
       })
 
-      // Skip heavy parallax effects if user prefers reduced motion
-      if (prefersReducedMotion) return
+      // Skip heavy parallax effects on mobile or if user prefers reduced motion
+      if (isMobile || prefersReducedMotion) return
 
       /* ── Floating rings — parallax + scale ── */
       gsap.utils.toArray('[data-float]').forEach((el) => {
@@ -111,13 +108,13 @@ export default function ScrollEffects() {
         <svg viewBox="0 0 200 200" fill="none">
           <defs>
             <linearGradient id="ringGrad1" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="rgba(74,144,217,0.4)" />
-              <stop offset="50%" stopColor="rgba(208,255,113,0.15)" />
-              <stop offset="100%" stopColor="rgba(74,144,217,0.05)" />
+              <stop offset="0%" stopColor="rgba(74,144,217,0.7)" />
+              <stop offset="50%" stopColor="rgba(208,255,113,0.35)" />
+              <stop offset="100%" stopColor="rgba(74,144,217,0.2)" />
             </linearGradient>
           </defs>
-          <circle cx="100" cy="100" r="96" stroke="url(#ringGrad1)" strokeWidth="0.8" data-ring-draw />
-          <circle cx="100" cy="100" r="80" stroke="rgba(74,144,217,0.12)" strokeWidth="0.4" strokeDasharray="4 8" />
+          <circle cx="100" cy="100" r="96" stroke="url(#ringGrad1)" strokeWidth="1.2" data-ring-draw />
+          <circle cx="100" cy="100" r="80" stroke="rgba(74,144,217,0.25)" strokeWidth="0.6" strokeDasharray="4 8" />
         </svg>
       </div>
 
@@ -130,12 +127,12 @@ export default function ScrollEffects() {
         <svg viewBox="0 0 200 200" fill="none">
           <defs>
             <linearGradient id="ringGrad2" x1="0" y1="200" x2="200" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="rgba(208,255,113,0.2)" />
-              <stop offset="100%" stopColor="rgba(74,144,217,0.3)" />
+              <stop offset="0%" stopColor="rgba(208,255,113,0.4)" />
+              <stop offset="100%" stopColor="rgba(74,144,217,0.55)" />
             </linearGradient>
           </defs>
-          <circle cx="100" cy="100" r="96" stroke="url(#ringGrad2)" strokeWidth="0.6" data-ring-draw />
-          <circle cx="100" cy="100" r="60" stroke="rgba(74,144,217,0.1)" strokeWidth="0.3" strokeDasharray="4 8" />
+          <circle cx="100" cy="100" r="96" stroke="url(#ringGrad2)" strokeWidth="1" data-ring-draw />
+          <circle cx="100" cy="100" r="60" stroke="rgba(74,144,217,0.22)" strokeWidth="0.5" strokeDasharray="4 8" />
         </svg>
       </div>
 
@@ -148,14 +145,14 @@ export default function ScrollEffects() {
         <svg viewBox="0 0 200 200" fill="none">
           <defs>
             <linearGradient id="ringGrad3" x1="200" y1="0" x2="0" y2="200" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="rgba(74,144,217,0.25)" />
-              <stop offset="40%" stopColor="rgba(208,255,113,0.1)" />
-              <stop offset="100%" stopColor="rgba(74,144,217,0.03)" />
+              <stop offset="0%" stopColor="rgba(74,144,217,0.5)" />
+              <stop offset="40%" stopColor="rgba(208,255,113,0.28)" />
+              <stop offset="100%" stopColor="rgba(74,144,217,0.15)" />
             </linearGradient>
           </defs>
-          <circle cx="100" cy="100" r="98" stroke="url(#ringGrad3)" strokeWidth="0.6" data-ring-draw />
-          <circle cx="100" cy="100" r="72" stroke="rgba(74,144,217,0.1)" strokeWidth="0.3" />
-          <circle cx="100" cy="100" r="48" stroke="rgba(74,144,217,0.06)" strokeWidth="0.2" strokeDasharray="3 9" />
+          <circle cx="100" cy="100" r="98" stroke="url(#ringGrad3)" strokeWidth="1" data-ring-draw />
+          <circle cx="100" cy="100" r="72" stroke="rgba(74,144,217,0.2)" strokeWidth="0.5" />
+          <circle cx="100" cy="100" r="48" stroke="rgba(74,144,217,0.15)" strokeWidth="0.4" strokeDasharray="3 9" />
         </svg>
       </div>
 
