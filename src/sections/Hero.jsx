@@ -13,25 +13,37 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.4 })
+      const tl = gsap.timeline()
 
       /* Title lines stagger in */
-      tl.from('[data-hero-line]', {
-        y: 60,
-        opacity: 0,
-        filter: 'blur(12px)',
-        duration: 1.2,
-        stagger: 0.15,
-        ease: 'power4.out',
-      })
+      tl.fromTo('[data-hero-line]',
+        {
+          y: 60,
+          opacity: 0,
+          filter: 'blur(12px)',
+        },
+        {
+          y: 0,
+          opacity: 1,
+          filter: 'blur(0px)',
+          duration: 1.2,
+          stagger: 0.15,
+          ease: 'power4.out',
+        }
+      )
 
       /* Subtitle */
-      tl.from(
+      tl.fromTo(
         subtitleRef.current,
         {
           y: 30,
           opacity: 0,
           filter: 'blur(8px)',
+        },
+        {
+          y: 0,
+          opacity: 1,
+          filter: 'blur(0px)',
           duration: 1,
           ease: 'power3.out',
         },
@@ -39,11 +51,15 @@ export default function Hero() {
       )
 
       /* CTAs */
-      tl.from(
+      tl.fromTo(
         ctaRef.current.children,
         {
           y: 20,
           opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 1,
           duration: 0.8,
           stagger: 0.1,
           ease: 'power3.out',
@@ -52,10 +68,13 @@ export default function Hero() {
       )
 
       /* Scroll indicator */
-      tl.from(
+      tl.fromTo(
         scrollRef.current,
         {
           opacity: 0,
+        },
+        {
+          opacity: 1,
           duration: 1,
           ease: 'power2.out',
         },

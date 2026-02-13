@@ -76,87 +76,130 @@ export default function LoadingScreen({ onComplete }) {
     return () => cancelAnimationFrame(frame)
   }, [])
 
-  /* Listen for the 3D scene to signal it's loaded */
+  /* Track fonts + window load, then smoothly complete */
   useEffect(() => {
-    function handleSceneLoaded() {
-      finishLoading()
+    let completed = false
+    let resourcesReady = false
+    const startTime = Date.now()
+    const MIN_DISPLAY_TIME = 2500 // Show loader for at least 2.5s
+
+    const readyState = {
+      fonts: false,
+      window: false,
     }
 
-    /* Also listen for a global event from CrowdScene */
-    window.addEventListener('beux-scene-ready', handleSceneLoaded)
+    function checkAllReady() {
+      if (readyState.fonts && readyState.window) {
+        resourcesReady = true
 
-    /* Fallback: auto-complete after 5s max */
-    const fallback = setTimeout(() => finishLoading(), 5000)
+        /* Wait for minimum display time before completing */
+        const elapsed = Date.now() - startTime
+        const remaining = Math.max(0, MIN_DISPLAY_TIME - elapsed)
 
-    return () => {
-      window.removeEventListener('beux-scene-ready', handleSceneLoaded)
-      clearTimeout(fallback)
+        setTimeout(() => {
+          if (!completed) {
+            completed = true
+            animateToComplete()
+          }
+        }, remaining)
+      }
     }
-  }, [])
 
-  function finishLoading() {
-    /* Animate to 100% */
-    if (barFillRef.current) {
-      gsap.to(barFillRef.current, {
-        width: '100%',
-        duration: 0.4,
-        ease: 'power2.out',
+    /* 1. Wait for fonts to load */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        readyState.fonts = true
+        checkAllReady()
+      })
+    } else {
+      readyState.fonts = true
+    }
+
+    /* 2. Wait for all resources (images, etc.) */
+    if (document.readyState === 'complete') {
+      readyState.window = true
+      checkAllReady()
+    } else {
+      window.addEventListener('load', () => {
+        readyState.window = true
+        checkAllReady()
       })
     }
-    if (percentRef.current) {
-      percentRef.current.textContent = '100%'
+
+    /* Fallback: auto-complete after 5s max */
+    const fallback = setTimeout(() => {
+      if (!completed) {
+        completed = true
+        animateToComplete()
+      }
+    }, 5000)
+
+    return () => clearTimeout(fallback)
+  }, [])
+
+  /* Smoothly animate progress from 90 to 100, then finish */
+  function animateToComplete() {
+    let current = 90
+
+    function tick() {
+      current += (100 - current) * 0.15
+
+      if (barFillRef.current) {
+        barFillRef.current.style.width = `${current}%`
+      }
+      if (percentRef.current) {
+        percentRef.current.textContent = `${Math.round(current)}%`
+      }
+
+      if (current < 99.5) {
+        requestAnimationFrame(tick)
+      } else {
+        // Snap to 100% and finish
+        if (barFillRef.current) barFillRef.current.style.width = '100%'
+        if (percentRef.current) percentRef.current.textContent = '100%'
+        setProgress(100)
+
+        setTimeout(() => finishLoading(), 400)
+      }
     }
-    setProgress(100)
 
-    /* Exit animation */
-    const tl = gsap.timeline({
-      delay: 0.5,
-      onComplete: () => onComplete?.(),
-    })
+    tick()
+  }
 
-    tl.to(logoRef.current, {
-      opacity: 0,
-      y: -20,
-      duration: 0.4,
-      ease: 'power3.in',
-    })
+  function finishLoading() {
+    const tl = gsap.timeline()
 
+    /* Fade out all content */
     tl.to(
-      modelAreaRef.current,
+      [logoRef.current, modelAreaRef.current, barFillRef.current?.parentElement, percentRef.current],
       {
         opacity: 0,
-        scale: 1.05,
-        duration: 0.4,
-        ease: 'power3.in',
-      },
-      '-=0.3'
+        duration: 0.5,
+        ease: 'power2.inOut',
+      }
     )
+
+    /* Signal page to mount, then animate curtain split to reveal it */
+    tl.call(() => onComplete?.())
 
     tl.to(
-      barFillRef.current?.parentElement,
+      overlayRef.current.querySelector('[data-curtain-top]'),
       {
-        opacity: 0,
-        duration: 0.3,
-        ease: 'power3.in',
+        yPercent: -100,
+        duration: 1,
+        ease: 'power4.inOut',
       },
-      '-=0.3'
+      '+=0.6' // Wait for gradient to render before opening curtain
     )
-
-    /* Curtain split — top half goes up, bottom half goes down */
-    tl.to(overlayRef.current.querySelector('[data-curtain-top]'), {
-      yPercent: -100,
-      duration: 0.9,
-      ease: 'power4.inOut',
-    })
 
     tl.to(
       overlayRef.current.querySelector('[data-curtain-bottom]'),
       {
         yPercent: 100,
-        duration: 0.9,
+        duration: 1,
         ease: 'power4.inOut',
       },
-      '<'
+      '<' // Start at same time as top curtain
     )
   }
 
