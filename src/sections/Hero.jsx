@@ -13,7 +13,9 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline()
+      const tl = gsap.timeline({
+        delay: 2.3 // Wait for loading screen curtain to fully close (2.2s + 0.1s buffer)
+      })
 
       /* Title lines stagger in */
       tl.fromTo('[data-hero-line]',
@@ -52,7 +54,7 @@ export default function Hero() {
 
       /* CTAs */
       tl.fromTo(
-        ctaRef.current.children,
+        ctaRef.current,
         {
           y: 20,
           opacity: 0,
@@ -61,7 +63,6 @@ export default function Hero() {
           y: 0,
           opacity: 1,
           duration: 0.8,
-          stagger: 0.1,
           ease: 'power3.out',
         },
         '-=0.5'
