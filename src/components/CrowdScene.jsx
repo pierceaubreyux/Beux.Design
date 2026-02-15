@@ -151,6 +151,16 @@ function createParticles(scene, isMobile = false) {
   return points
 }
 
+/* ─── Patch atlas textures to prevent mipmap bleeding ─── */
+function patchAtlasTexture(tex, renderer) {
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  tex.generateMipmaps = false
+  tex.minFilter = THREE.LinearFilter
+  tex.magFilter = THREE.LinearFilter
+  tex.needsUpdate = true
+}
+
 /* ─── Main Component ─── */
 export default function CrowdScene({ className, ...rest }) {
   const containerRef = useRef(null)
@@ -264,6 +274,39 @@ export default function CrowdScene({ className, ...rest }) {
         if (perfMode.isMobile) {
           crowd.rotation.y = Math.PI // Face forward on mobile
         }
+
+        /* Fix atlas texture bleeding on heads (hair/eyebrows/lips) */
+        gltf.scene.traverse((obj) => {
+          if (!obj.isMesh) return
+
+          const materials = Array.isArray(obj.material) ? obj.material : [obj.material]
+
+          for (const mat of materials) {
+            if (!mat) continue
+
+            // Patch baseColor/diffuse maps that are head atlases
+            if (mat.map && mat.map.image && mat.map.image.src) {
+              const src = mat.map.image.src
+              const isHeadAtlas = /Head_C|Head_BaseColor|_Head_|head_|Hair|hair|Face|face/i.test(src)
+
+              if (isHeadAtlas) {
+                console.log('🎨 Patching atlas texture:', src)
+                patchAtlasTexture(mat.map, renderer)
+              }
+            }
+
+            // Also check for normal maps if they have atlas patterns
+            if (mat.normalMap && mat.normalMap.image && mat.normalMap.image.src) {
+              const src = mat.normalMap.image.src
+              const isHeadAtlas = /Head_N|Head_Normal|_Head_|head_|Hair|hair|Face|face/i.test(src)
+
+              if (isHeadAtlas) {
+                console.log('🎨 Patching atlas normal map:', src)
+                patchAtlasTexture(mat.normalMap, renderer)
+              }
+            }
+          }
+        })
 
         scene.add(crowd)
 
